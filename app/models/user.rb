@@ -2,6 +2,7 @@ class User < ActiveRecord::Base
   attr_accessor   :password 
   attr_accessible :name, :email, :password, :password_confirmation
   
+  # pagination parameters
   cattr_reader :per_page
   @@per_page = 10 
   
@@ -59,6 +60,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: users
@@ -70,5 +72,6 @@ end
 #  updated_at         :datetime
 #  encrypted_password :string(255)
 #  salt               :string(255)
+#  admin              :boolean         default(FALSE)
 #
 
