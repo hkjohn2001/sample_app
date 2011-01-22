@@ -2,7 +2,15 @@ class User < ActiveRecord::Base
   attr_accessor   :password 
   attr_accessible :name, :email, :password, :password_confirmation
   
-  has_many :microposts, :dependent => :destroy
+  has_many :microposts,    :dependent => :destroy
+  has_many :relationships, :dependent => :destroy,
+                           :foreign_key => "follower_id"
+  has_many :reverse_relationships, :foreign_key => "followed_id",
+                                  :class_name => "Relationship",
+                                  :dependent => :destroy
+  has_many :following, :through => :relationships, :source => :followed
+  has_many :followers, :through => :reverse_relationships, 
+                       :source  => :follower
   
   # pagination parameters
   cattr_reader :per_page
@@ -28,6 +36,18 @@ class User < ActiveRecord::Base
   def feed
     Micropost.where("user_id = ?", id)
   end 
+  
+  def following?(followed)
+    relationships.find_by_followed_id(followed)
+  end 
+  
+  def follow!(followed)
+    relationships.create!(:followed_id => followed.id)
+  end 
+  
+  def unfollow!(followed)
+    relationships.find_by_followed_id(followed).destroy
+  end
   
   class << self
       def User.authenticate(email, submitted_password)
